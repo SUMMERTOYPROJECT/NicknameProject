@@ -1,0 +1,37 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  Sample SAM Template for FastAPI application
+
+Globals:
+  Function:
+    Timeout: 15
+    MemorySize: 128
+
+Resources:
+  FastApiFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: app.main.lambda_handler
+      Runtime: python3.9
+      CodeUri: .
+      MemorySize: 128
+      Timeout: 15
+      Architectures:
+        - x86_64
+      Events:
+        ApiRoot:
+          Type: Api
+          Properties:
+            Path: /
+            Method: get
+        ApiItems:
+          Type: Api
+          Properties:
+            Path: /items/{item_id}
+            Method: get
+
+Outputs:
+  ApiUrl:
+    Description: "API Gateway endpoint URL for Prod environment"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"

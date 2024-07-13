@@ -1,31 +1,38 @@
 import os
-from app.dto.ProfileImageReq import ProfileImageRequest
+import asyncio
 from openai import OpenAI
 from dotenv import load_dotenv
+from app.dto.ProfileImageReq import ProfileImageRequest
 
 load_dotenv()
 client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
 
-def generate_langchain_profileImage(request: ProfileImageRequest):
+async def generate_langchain_profileImage(request: ProfileImageRequest):
     nickname = request.nickname
     description = request.description
     print(f"[OpenAI....] 닉네임 '{nickname}'과 설명 '{description}'으로 프로필 이미지 생성중.....")
 
-    # OpenAI의 DALL-E API를 사용하여 이미지 생성
-    response = client.images.generate(
+    # 프롬프트를 구체적으로 작성
+    prompt = (
+        f"Create a high-quality profile image of a character named {nickname}. "
+        f"The character is described as {description}. "
+        "Ensure the character is visually appealing and has an animation-like style, "
+        "with a clear, friendly, and playful facial expression that matches the described personality. "
+        "The character should have distinct and adorable features that make them memorable and endearing. "
+        "The background should be neutral or softly blurred to keep the focus on the character. "
+        "The lighting should be soft and flattering, avoiding harsh shadows. "
+        "Include fun and creative elements or accessories that highlight the character's described traits, "
+        "such as a whimsical explorer's hat, quirky glasses, or a magical artifact."
+    )
+
+    # 비동기로 OpenAI의 DALL-E API를 사용하여 이미지 생성
+    loop = asyncio.get_event_loop()
+    response = await loop.run_in_executor(None, lambda: client.images.generate(
         model="dall-e-3",
-        prompt=(
-            f"Create a cute and fun anime-style profile image for the nickname '{nickname}'. "
-            f"The character should have a friendly and adorable appearance with big, sparkling eyes, a happy smile, "
-            f"and a charming expression. The image should include the nickname '{nickname}' prominently. Use bright and cheerful colors "
-            f"like pastel pink, blue, yellow, and green. The background should be soft and pleasant, enhancing the character's features. "
-            f"The character should be holding a piece of cheese and standing in front of a maze, symbolizing wisdom and adaptability. "
-            f"The description for the image is: {description}. Make sure the image is very cute, appealing, and positive. "
-            f"Avoid any dark, scary, or negative elements."
-        ),
+        prompt=prompt,
         n=1,
         size="1024x1024"
-    )
+    ))
 
     image_url = response.data[0].url
     print(f"Generated Image URL: {image_url}")

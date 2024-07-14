@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { postNicknameApi, postNicknameImageApi } from '../api/ApiNickname';
+import { postNicknameApi, postImageApi } from '../api/ApiNickname';
 import styled from 'styled-components';
 import refreshImg from '../assets/reset.png';
 import cancelBtnImg from '../assets/x-button.png';
@@ -484,30 +484,8 @@ const InfoInput = () => {
   /* 입력 완료 버튼 */
   const submitHandler = async () => {
     console.log("입력 완료 버튼 Click!!");
-    try {
-      const response = await postNicknameApi(info);
-      console.log("status is " + response.status);
-      if (response.status === 200) {
-        setIsSelectBtnOpne(true);
-      } else {
-        console.error("Failed with status code:", response.status);
-      }
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        console.error("Error Info : ", error);
-        if (error.response) {
-          console.error("Server responded with a status:", error.response.status);
-        } else if (error.request) {
-          console.error("No response received:", error.message);
-        } else {
-          console.error("Error setting up request:", error.message);
-        }
-      } else {
-        console.error("Unexpected error: ", error);
-      }
-    }
+    setIsSelectBtnOpne(true);
   }
-  
 
   /* 닫기 버튼 */
   const closeHandler = () => {
@@ -528,64 +506,61 @@ const InfoInput = () => {
     setDisplayResult("닉네임 생성중");
     setImageUrl(null);
     try {
-      let response;
-      if (selectedOption === '닉네임') {
-        console.log("닉네임 코드 확인");
-        response = await postNicknameApi(info);
+        const response = await postNicknameApi(info);
         if (response.status === 200) {
-          console.log("response is :", response.status);
-          setDisplayResult(response.data.nickname);
+            console.log("response is :", response.status);
+            setDisplayResult(response.data.nickname);
+            if (selectedOption === '닉네임 + 이미지') {
+                const imageResponse = await postImageApi({
+                    nickname: response.data.nickname,
+                    description: info.description
+                });
+                if (imageResponse.status === 200) {
+                    setImageUrl(imageResponse.data.image_url);
+                } else {
+                    console.error("Failed with status code:", imageResponse.status);
+                }
+            }
         } else {
-          console.error("Failed with status code:", response.status);
+            console.error("Failed with status code:", response.status);
         }
-      } else if (selectedOption === '닉네임 + 이미지') {
-        console.log("닉네임+이미지 코드 확인");
-        response = await postNicknameImageApi(info);
-        if (response.status === 200) {
-          setDisplayResult(response.data.nickname);
-          setImageUrl(response.data.image_url);
-        } else {
-          console.error("Failed with status code:", response.status);
-        }
-      }
-      setIsSelectBtnOpne(false);
+        setIsSelectBtnOpne(false);
     } catch (error) {
-      console.error("Error Info : ", error);
+        console.error("Error Info : ", error);
     } finally {
-      setIsLoading(false);
+        setIsLoading(false);
     }
-  }
+};
 
-  /* 새로고침 버튼 */
-  const RefreshButtonHandler = async () => {
+/* 새로고침 버튼 */
+const RefreshButtonHandler = async () => {
     console.log("새로고침 버튼 Click!!");
     setIsLoading(true);
     setDisplayResult("닉네임 생성중");
-    setImageUrl(null);
     try {
-        let response;
-        if (selectedOption === '닉네임') {
-            response = await postNicknameApi(info);
-            if (response.status === 200) {
-                setDisplayResult(response.data.nickname);
-            } else {
-                console.error("Failed with status code:", response.status);
+        const response = await postNicknameApi(info);
+        if (response.status === 200) {
+            setDisplayResult(response.data.nickname);
+            if (selectedOption === '닉네임 + 이미지') {
+                const imageResponse = await postImageApi({
+                    nickname: response.data.nickname,
+                    description: info.description
+                });
+                if (imageResponse.status === 200) {
+                    setImageUrl(imageResponse.data.image_url);
+                } else {
+                    console.error("Failed with status code:", imageResponse.status);
+                }
             }
-        } else if (selectedOption === '닉네임 + 이미지') {
-            response = await postNicknameImageApi(info);
-            if (response.status === 200) {
-                setDisplayResult(response.data.nickname);
-                setImageUrl(response.data.image_url);
-            } else {
-                console.error("Failed with status code:", response.status);
-            }
+        } else {
+            console.error("Failed with status code:", response.status);
         }
     } catch (error) {
         console.error("Error Info : ", error);
     } finally {
         setIsLoading(false);
-      }
-  };
+    }
+};
 
   return (
     <Background>
@@ -717,35 +692,35 @@ const InfoInput = () => {
         </SelectBtnBackground>
       )}
       {/* 결과 표시 (image_url 여부로 구분)*/}
-      {displayResult && !imageUrl && (
+      {displayResult && !imageUrl && selectedOption === '닉네임' && (
         <SelectBtnBackground>
-          <NicknameDisplay>
-            <MessageTopBar/>
-            <NicknameText>{isLoading ? "닉네임 생성중" : displayResult}</NicknameText>
-            <RefreshButton onClick={RefreshButtonHandler}>
-              <img src = {refreshImg}/>
-            </RefreshButton>
-            <CancelButton onClick={closeHandler}>
-              <img src = {cancelBtnImg}/>
-            </CancelButton>
-          </NicknameDisplay>
+            <NicknameDisplay>
+                <MessageTopBar/>
+                <NicknameText>{isLoading ? "닉네임 생성중" : displayResult}</NicknameText>
+                <RefreshButton onClick={RefreshButtonHandler}>
+                    <img src={refreshImg} />
+                </RefreshButton>
+                <CancelButton onClick={closeHandler}>
+                    <img src={cancelBtnImg} />
+                </CancelButton>
+            </NicknameDisplay>
         </SelectBtnBackground>
-      )}
-      {displayResult && imageUrl && (
+    )}
+    {displayResult && selectedOption === '닉네임 + 이미지' && (
         <SelectBtnBackground>
-          <NicknameImageDisplay>
-            <CancelButton onClick={closeHandler}>
-                <img src = {cancelBtnImg}/>
-            </CancelButton>
-            <MessageTopBar/>
-            {imageUrl && <img src = {imageUrl} alt='닉네임 이미지'/>}
-            <NicknameImageText>{isLoading ? "닉네임 생성중" : displayResult}</NicknameImageText>
-            <RefreshButton onClick={RefreshButtonHandler}>
-              <img src = {refreshImg}/>
-            </RefreshButton>
-          </NicknameImageDisplay>
+            <NicknameImageDisplay>
+                <CancelButton onClick={closeHandler}>
+                    <img src={cancelBtnImg} />
+                </CancelButton>
+                <MessageTopBar />
+                <NicknameImageText>{isLoading ? "닉네임 생성중" : displayResult}</NicknameImageText>
+                {imageUrl && <img src={imageUrl} alt='닉네임 이미지' />}
+                <RefreshButton onClick={RefreshButtonHandler}>
+                    <img src={refreshImg} />
+                </RefreshButton>
+            </NicknameImageDisplay>
         </SelectBtnBackground>
-      )}
+    )}
     </Background>
   );
 };

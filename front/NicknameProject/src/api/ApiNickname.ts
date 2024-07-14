@@ -1,7 +1,7 @@
 import { apiClient } from "./ApiClient";
 
-/* 입력 데이터 */
-interface Info {
+/* 닉네임 입력 데이터 */
+interface NicknameInfo {
     nickname_types: string;
     language_types: string;
     min_length: number;
@@ -11,8 +11,14 @@ interface Info {
     description: string;
 }
 
-/* 요청 */
-export const postNicknameApi = (info: Info) => apiClient.post('/nickname', info);
+/* 이미지 입력 데이터 */
+interface ImageInfo {
+    nickname: string;
+    description: string;
+}
 
-/* 닉네임 + 이미지 */
-export const postNicknameImageApi = (info: Info) => apiClient.post('/nickname/profile', info);
+/* 닉네임 요청 */
+export const postNicknameApi = (info: NicknameInfo) => apiClient.post('/nickname', info);
+
+/* 이미지 요청 */
+export const postImageApi = (info: ImageInfo) => apiClient.post('/profile', info);

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { postNicknameApi, postImageApi } from '../api/ApiNickname';
 import styled from 'styled-components';
 import refreshImg from '../assets/reset.png';
@@ -456,6 +456,9 @@ const InfoInput = () => {
   /* 로딩 */
   const [isLoading, setIsLoading] = useState(false);
 
+  /* 로딩 점 */
+  const [loadingDots, setLoadingDots] = useState('');
+
   /* 입력 타입 실행 */
   const InputBtnExpandHandler = () => {
     setIsInputExpanded(!isInputExpanded);
@@ -499,26 +502,43 @@ const InfoInput = () => {
     setSelectedOption(option);
   };
 
+  /* 로딩 애니메이션 */
+  const LoadingDots = () => {
+    const [dots, setDots] = useState('');
+  
+    useEffect(() => {
+      const interval = setInterval(() => {
+        setDots(prev => (prev.length < 3 ? prev + '.' : ''));
+      }, 500);
+      return () => clearInterval(interval);
+    }, []);
+  
+    return <span>{dots}</span>;
+  };
+
   /* 결과 표시 */
   const showResultHandler = async () => {
     console.log("닉네임 or 닉네임+이미지 체크 확인");
     setIsLoading(true);
     setDisplayResult("닉네임 생성중");
-    setImageUrl(null);
+    setImageUrl("이미지 생성중");
     try {
         const response = await postNicknameApi(info);
         if (response.status === 200) {
             console.log("response is :", response.status);
             setDisplayResult(response.data.nickname);
+
             if (selectedOption === '닉네임 + 이미지') {
                 const imageResponse = await postImageApi({
                     nickname: response.data.nickname,
                     description: info.description
                 });
+
                 if (imageResponse.status === 200) {
                     setImageUrl(imageResponse.data.image_url);
                 } else {
                     console.error("Failed with status code:", imageResponse.status);
+                    setImageUrl(null);
                 }
             }
         } else {
@@ -527,29 +547,36 @@ const InfoInput = () => {
         setIsSelectBtnOpne(false);
     } catch (error) {
         console.error("Error Info : ", error);
+        setDisplayResult("Error occurred");
+        setImageUrl(null);
     } finally {
         setIsLoading(false);
     }
-};
+  };
 
-/* 새로고침 버튼 */
-const RefreshButtonHandler = async () => {
+
+  /* 새로고침 버튼 */
+  const RefreshButtonHandler = async () => {
     console.log("새로고침 버튼 Click!!");
     setIsLoading(true);
     setDisplayResult("닉네임 생성중");
+    setImageUrl("이미지 생성중");
     try {
         const response = await postNicknameApi(info);
         if (response.status === 200) {
             setDisplayResult(response.data.nickname);
+
             if (selectedOption === '닉네임 + 이미지') {
                 const imageResponse = await postImageApi({
                     nickname: response.data.nickname,
                     description: info.description
                 });
+
                 if (imageResponse.status === 200) {
                     setImageUrl(imageResponse.data.image_url);
                 } else {
                     console.error("Failed with status code:", imageResponse.status);
+                    setImageUrl(null);
                 }
             }
         } else {
@@ -557,10 +584,12 @@ const RefreshButtonHandler = async () => {
         }
     } catch (error) {
         console.error("Error Info : ", error);
+        setDisplayResult("Error occurred");
+        setImageUrl(null);
     } finally {
         setIsLoading(false);
     }
-};
+  };
 
   return (
     <Background>
@@ -692,11 +721,12 @@ const RefreshButtonHandler = async () => {
         </SelectBtnBackground>
       )}
       {/* 결과 표시 (image_url 여부로 구분)*/}
-      {displayResult && !imageUrl && selectedOption === '닉네임' && (
+      {displayResult && selectedOption === '닉네임' && (
         <SelectBtnBackground>
             <NicknameDisplay>
                 <MessageTopBar/>
                 <NicknameText>{isLoading ? "닉네임 생성중" : displayResult}</NicknameText>
+                {isLoading && <LoadingDots />}
                 <RefreshButton onClick={RefreshButtonHandler}>
                     <img src={refreshImg} />
                 </RefreshButton>
@@ -706,6 +736,7 @@ const RefreshButtonHandler = async () => {
             </NicknameDisplay>
         </SelectBtnBackground>
     )}
+
     {displayResult && selectedOption === '닉네임 + 이미지' && (
         <SelectBtnBackground>
             <NicknameImageDisplay>
@@ -713,8 +744,15 @@ const RefreshButtonHandler = async () => {
                     <img src={cancelBtnImg} />
                 </CancelButton>
                 <MessageTopBar />
-                <NicknameImageText>{isLoading ? "닉네임 생성중" : displayResult}</NicknameImageText>
-                {imageUrl && <img src={imageUrl} alt='닉네임 이미지' />}
+                <NicknameImageText>{displayResult}</NicknameImageText>
+                {imageUrl === "이미지 생성중" ? (
+                  <>
+                    <NicknameImageText>이미지 생성중</NicknameImageText>
+                    <LoadingDots />
+                  </>
+                ) : (
+                  imageUrl && <img src={imageUrl} alt='닉네임 이미지' />
+                )}
                 <RefreshButton onClick={RefreshButtonHandler}>
                     <img src={refreshImg} />
                 </RefreshButton>

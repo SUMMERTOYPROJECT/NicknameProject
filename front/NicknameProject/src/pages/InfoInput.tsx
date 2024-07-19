@@ -557,7 +557,7 @@ const InfoInput = () => {
 
   /* 새로고침 버튼 */
   const RefreshButtonHandler = async () => {
-    console.log("새로고침 버튼 Click!!");
+    console.log("새로고침 버튼 Click!");
     setIsLoading(true);
     setDisplayResult("닉네임 생성중");
     setImageUrl("이미지 생성중");

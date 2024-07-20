@@ -7,32 +7,40 @@ load_dotenv()
 from app.dto.NicknameReq import NicknameRequest
 from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
 from langchain.chains import LLMChain
-from langchain.memory import ConversationSummaryBufferMemory
 from langchain.prompts import (
     ChatPromptTemplate,
     HumanMessagePromptTemplate,
-    MessagesPlaceholder,
     SystemMessagePromptTemplate,
 )
 
 async def generate_langchain_nickname(request: NicknameRequest):
     system_template = SystemMessagePromptTemplate.from_template(
-        "너는 닉네임 생성 전문가야. 아래 정보를 바탕으로 재미있고 센스있는 닉네임을 생성해줘.\n"
-        "최종 결과는 반드시 {min_length}과 {max_length}사이에 글자수 닉네임만 딱 반환하고 공백은 제거하도록 해.\n"
-        "닉네임 타입 : {nickname_types}\n"
+        """
+        "당신은 최고의 닉네임 창작자입니다. 웹사이트나 게임에서 사용될 독특하고 기억에 남을만한 닉네임을 만들어주세요. "
+        "아래의 정보를 기반으로 독창적이고 재미있는 닉네임을 생성해주세요.\n"
+        "결과 닉네임은 반드시 {min_length}와 {max_length} 글자 사이여야 하며 공백은 제외해주세요.\n"
+        # "닉네임 타입 : {nickname_types}\n"
         "최소 글자수: {min_length}\n"
         "최대 글자수: {max_length}\n"
-        "반드시 들어가야하는 문자: {contain_string}\n"
+        "반드시 포함되어야 하는 문자: {contain_string}\n"
         "사용자 이름: {user_name}\n"
         "반환할 닉네임 언어: {language}\n"
         "설명: {mood}\n"
-        "추가 정보:\n"
-        "- 닉네임은 기억에 남을만한 단어를 사용해야 해.\n"
-        "- 사용자 이름과 관련된 단어나 의미를 포함해봐.\n"
-        "- 가능한 한 긍정적이고 재미있는 느낌을 주도록 해.\n"
-        "- 창의적이고 독특한 단어 조합을 사용해봐.\n"
-        "- 다양한 문화적 참조를 사용해서 닉네임을 더욱 흥미롭게 만들어줘.\n"
-        "- 유머러스하거나 말장난이 포함된 닉네임도 좋아."
+        "추가 지침:\n"
+        "- 닉네임은 사용자의 개성과 맞아야 합니다.\n"
+        "- 사용자 이름과 관련된 독특한 단어나 의미를 포함하세요.\n"
+        "- 긍정적이고 재미있는 느낌을 주도록 하세요.\n"
+        "- 흔하지 않은 단어 조합과 창의적인 표현을 사용하세요.\n"
+        "- 다양한 문화적 요소를 반영하여 닉네임을 더욱 흥미롭게 만드세요.\n"
+        "- 유머와 말장난이 포함된 닉네임을 고려하세요.\n"
+        "- 다른 사람들이 쉽게 기억할 수 있도록 만드세요.\n"
+        "- 예상을 벗어난 참신한 아이디어를 사용하세요.\n"
+        "- 평범하지 않고 놀라운 요소를 추가하세요.\n"
+        "공백 또는 특수문자 등은 추가하지 마세요.\n"
+        "반드시 반드시 포함되어야 하는 문자{contain_string}를 형용사, 동사 형태로 변환 후에 {user_name}을 조합하며 {user_name}을 직접적으로 언급하면 안됩니다.\n"
+        "반드시 형용사 + 명사 혹은 동사+명사 형태로 만들어주세요\n"
+        "예시 : 우동뱉는백종원, 미사일을탄홍길동, 밥먹으러뛰어가는자동차...\n"
+        """
     )
     
     # 시스템 메시지 생성
@@ -51,30 +59,22 @@ async def generate_langchain_nickname(request: NicknameRequest):
     # ChatPromptTemplate 템플릿 정의
     prompt = ChatPromptTemplate.from_messages([
         system_message,                                              # 역할부여
-        MessagesPlaceholder(variable_name="chat_history"),           # 메모리 저장소 설정. ConversationBufferMemory의 memory_key 와 동일하게 설정
         HumanMessagePromptTemplate.from_template("{human_input}"),   # 사용자 메시지 injection
     ])
 
     # LLM 모델 정의
     llm = ChatOpenAI(model='gpt-4',
-                     temperature=1.2,  # 창의적인 응답을 위해 온도를 높임
+                     temperature=1.5,  # 창의적인 응답을 위해 온도를 높임
                      streaming=True,
                      callbacks=[StreamingStdOutCallbackHandler()],
                      openai_api_key=os.getenv('OPENAI_API_KEY'))
-
-    # 메모리 정의
-    memory = ConversationSummaryBufferMemory(llm=llm,
-                                             memory_key="chat_history",
-                                             max_token_limit=10,
-                                             return_messages=True
-                                            )
 
     # LLMChain 정의
     conversation = LLMChain(
         llm=llm,       # LLM
         prompt=prompt, # Prompt
         verbose=True,  # True 로 설정시 로그 출력
-        memory=memory  # 메모리
+        memory=None    # 메모리 사용 안 함
     )
 
     # 비동기 실행

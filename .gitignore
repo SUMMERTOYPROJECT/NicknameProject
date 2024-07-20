@@ -1,0 +1,5 @@
+.env
+.DS_Store
+__pycache__
+fastAPI/.idea
+fastAPI/__pycache__

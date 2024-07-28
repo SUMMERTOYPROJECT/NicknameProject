@@ -3,7 +3,6 @@ import { postNicknameApi, postImageApi } from '../api/ApiNickname';
 import styled from 'styled-components';
 import refreshImg from '../assets/reset.png';
 import cancelBtnImg from '../assets/x-button.png';
-import axios from 'axios';
 
 const Background = styled.div`
   background-color: #999485;
@@ -424,8 +423,8 @@ const InfoInput = () => {
   const[info, setInfo] = useState({
     nickname_types: '',
     language_types: '',
-    min_length: 3,
-    max_length: 3,
+    min_length: 7,
+    max_length: 15,
     contain_string: '',
     user_name: '',
     description: ''
@@ -433,8 +432,8 @@ const InfoInput = () => {
 
   /* 입력 타입 설정*/
   const [isInputExpanded, setIsInputExpanded] = useState(false);
-  const [InputType, setInputType] = useState('선택하기');
-  const InputTypeList = ['선택하기', '명사', '형용사', '명사+형용사'];
+  const [InputType, setInputType] = useState('명사+형용사');
+  const InputTypeList = ['명사+형용사'];
 
   /* 언어 타입 설정*/
   const [isLanguageExpanded, setIsLanguageExpanded] = useState(false);
@@ -455,9 +454,6 @@ const InfoInput = () => {
 
   /* 로딩 */
   const [isLoading, setIsLoading] = useState(false);
-
-  /* 로딩 점 */
-  const [loadingDots, setLoadingDots] = useState('');
 
   /* 입력 타입 실행 */
   const InputBtnExpandHandler = () => {
@@ -604,42 +600,7 @@ const InfoInput = () => {
           GENERATOR
         </Title>
         <RowContainer>
-          {/* 입력 타입 */}
-          <InputContainer>
-            <TextContainer>
-              <TextColor>*</TextColor><Text>입력 타입</Text>
-            </TextContainer>
-            <DropdownContainer>
-              <DropdownButton onClick={InputBtnExpandHandler}>
-                {InputType}
-              </DropdownButton>
-              <DropdownContent isExpanded={isInputExpanded}>
-                {InputTypeList.map((type) => (
-                  <DropdownItem key={type} onClick={() => InputTypeHandler(type)}>
-                    {type}
-                  </DropdownItem>
-                ))}
-              </DropdownContent>
-            </DropdownContainer>
-          </InputContainer>
-          {/* 언어 타입 */}
-          <InputContainer>
-            <TextContainer>
-              <TextColor>*</TextColor><Text>언어 타입</Text>
-            </TextContainer>
-            <DropdownContainer>
-              <DropdownButton onClick={languageBtnExpandHandler}>
-                {languageType}
-              </DropdownButton>
-              <DropdownContent isExpanded={isLanguageExpanded}>
-                {languageTypeList.map((type) => (
-                  <DropdownItem key={type} onClick={() => languageTypeHandler(type)}>
-                    {type}
-                  </DropdownItem>
-                ))}
-              </DropdownContent>
-            </DropdownContainer>
-          </InputContainer>
+          
         </RowContainer>
 
         <RowContainer>

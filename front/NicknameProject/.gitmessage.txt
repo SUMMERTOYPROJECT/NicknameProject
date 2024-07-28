@@ -1,0 +1,30 @@
+<3-1. 커밋타입>: [3-2. 티켓번호] <3-3. 커밋제목>
+
+<BLANK LINE>
+#
+# [3-4. 상세내역]
+#
+# Feature: [MC-XXX] 검증 API 추가
+#
+# - 머니쿤 파써 검증 API 추가 (FastAPI)
+#
+# Fix(style): [MC-XXX] 소셜 기자단 페이지 배너 css 값 변경
+#
+# - XXX -> XXX 로 변경
+#
+# Fix(bug): [MC-XXX] PASS API를 통한 로그인이 비정상적으로 동작하는 현상 수정
+#
+# - 토큰 값 처리로 인해 로그인이 비정상적으로 되는 문제 해결
+#     - XXX -> XXX 값 수정
+#
+
+
+# 3-1. type (커밋타입)
+# Feature : 기능을 위한 일련의 작업을 수행 (eg. 기능 추가/수정/삭제)
+# Fix (bug) : 잘못된 동작에 대한 수정 (eg. 버그 수정)
+# (style) : 스타일 관련 작업에 대한 수정  (eg. html 레이아웃 변경 및 css 수정)
+# Document : 문서 관련 작업 (eg. REAME.md 수정)
+# Rename 파일 / 폴더명에 대한 수정
+# Remove 파일 / 폴더에 대한 삭제
+# Comment 코드 주석 추가 / 변경  (로직 수정 X)
+# Refactor 코드 리팩토링

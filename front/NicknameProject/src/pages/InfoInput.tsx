@@ -138,63 +138,6 @@ const TextColor = styled.div`
   font-weight: 600;
 `;
 
-const DropdownContainer = styled.div`
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-top: 10px;
-`;
-
-const DropdownButton = styled.button`
-  padding: 10px 20px;
-  font-size: 14px;
-  width: 200px;
-  cursor: pointer;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  background-color: white;
-`;
-
-interface DropdownContentProps{
-  isExpanded: boolean;
-}
-
-const DropdownContent = styled.div.withConfig({
-  shouldForwardProp: (prop) => prop !== 'isExpanded'
-})<DropdownContentProps>`
-  position: absolute;
-  top: 100%;
-  left: 0;
-  display: ${({ isExpanded }) => (isExpanded ? 'flex' : 'none')};
-  flex-direction: column;
-  align-items: center;
-  background-color: white;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  width: 200px;
-  z-index: 10;
-`;
-
-
-const DropdownItem = styled.button`
-  padding: 10px 20px;
-  font-size: 14px;
-  cursor: pointer;
-  border: none;
-  background-color: white;
-  width: 100%;
-  text-align: left;
-
-  &:hover {
-    background-color: #f1f1f1;
-  }
-
-  &:not(:last-child) {
-    border-bottom: 1px solid #ccc;
-  }
-`;
-
 const InputData = styled.input`
   padding: 10px 20px;
   font-size: 14px;
@@ -319,18 +262,63 @@ const SelectButton = styled.button`
 `;
 
 const NicknameDisplay = styled.div`
-  width: 300px;
-  height: 150px;
+  width: 400px;
+  height: 200px;
   padding: 20px;
   background-color: #ffff;
   border-radius: 10px;
   display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
+  /* justify-content: center; */
+  justify-content: space-between;
+  /* align-items: center; */
+  align-items: flex-start;
+  flex-direction: row;
+  /* flex-direction: column; */
   position: relative;
   z-index: 20;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+`;
+
+const NicknameTextContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  width: 50%;
+`;
+
+const NicknameTextWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 80%;
+  width: 100%;
+`;
+
+const NicknameListContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding-left: 20px;
+  /* border-left: 1px solid #ccc; */
+  height: 100%;
+  width: 50%;
+  overflow-y: auto;
+`;
+
+const NicknameListWrapper = styled.div`
+  overflow-y: auto;
+  height: 80%;
+  width: 100%;
+  margin-top: 10px;
+  `;
+
+const NicknameListItem = styled.div`
+  font-size: 14px;
+  color: #333;
+  margin-bottom: 10px;
 `;
 
 const NicknameImageText = styled.div`
@@ -338,19 +326,20 @@ const NicknameImageText = styled.div`
 `;
 
 const NicknameText = styled.div`
-  /* margin-bottom: 20px; */
+  margin-top: 50px;
+  margin-left: 20px;
 `;
 
 const NicknameImageDisplay = styled.div`
-  width: 300px;
+  width: 600px;
   height: 400px;
-  padding: 10px;
+  padding: 20px;
   background-color: #ffff;
   border-radius: 10px;
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
-  flex-direction: column;
+  flex-direction: row;
   position: relative;
   z-index: 20;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
@@ -359,6 +348,32 @@ const NicknameImageDisplay = styled.div`
     width: 200px;
     height: 200px;
     border: 2px #5d584f;
+  }
+`;
+
+const NicknameImageTextContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  width: 50%;
+`;
+
+const NicknameImageTextWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 80%;
+  width: 100%;
+`;
+
+const ImageWrapper = styled.div`
+  margin-top: 20px;
+  img {
+    width: 200px;
+    height: 200px;
+    border: 2px solid #5d584f;
   }
 `;
 
@@ -430,16 +445,6 @@ const InfoInput = () => {
     description: ''
   })
 
-  /* 입력 타입 설정*/
-  const [isInputExpanded, setIsInputExpanded] = useState(false);
-  const [InputType, setInputType] = useState('명사+형용사');
-  const InputTypeList = ['명사+형용사'];
-
-  /* 언어 타입 설정*/
-  const [isLanguageExpanded, setIsLanguageExpanded] = useState(false);
-  const [languageType, setLanguageType] = useState('선택하기');
-  const languageTypeList = ['선택하기', '한국어', '영어', '한국어+영어'];
-
   /* 입력 완료 버튼 */
   const [isSelectBtnOpen, setIsSelectBtnOpne] = useState(false);
 
@@ -455,25 +460,9 @@ const InfoInput = () => {
   /* 로딩 */
   const [isLoading, setIsLoading] = useState(false);
 
-  /* 입력 타입 실행 */
-  const InputBtnExpandHandler = () => {
-    setIsInputExpanded(!isInputExpanded);
-  };
-  const InputTypeHandler = (type: string) => {
-    setInputType(type);
-    setInfo({ ...info, nickname_types: type });
-    setIsInputExpanded(false);
-  };
+  /* 닉네임 이전 기록 */
+  const [nicknameHistory, setNicknameHistory] = useState<{ nickname: string, imageUrl: string | null }[]>([]);
 
-  /* 언어 타입 실행 */
-  const languageBtnExpandHandler = () => {
-    setIsLanguageExpanded(!isLanguageExpanded);
-  };
-  const languageTypeHandler = (type: string) => {
-    setLanguageType(type);
-    setInfo({ ...info, language_types: type });
-    setIsLanguageExpanded(false);
-  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -519,72 +508,83 @@ const InfoInput = () => {
     setDisplayResult("닉네임 생성중");
     setImageUrl("이미지 생성중");
     try {
-        const response = await postNicknameApi(info);
-        if (response.status === 200) {
-            console.log("response is :", response.status);
-            setDisplayResult(response.data.nickname);
-
-            if (selectedOption === '닉네임 + 이미지') {
-                const imageResponse = await postImageApi({
-                    nickname: response.data.nickname,
-                    description: info.description
-                });
-
-                if (imageResponse.status === 200) {
-                    setImageUrl(imageResponse.data.image_url);
-                } else {
-                    console.error("Failed with status code:", imageResponse.status);
-                    setImageUrl(null);
-                }
-            }
-        } else {
-            console.error("Failed with status code:", response.status);
+      const response = await postNicknameApi(info);
+      if (response.status === 200) {
+        setDisplayResult(response.data.nickname);
+        let imageUrl = null;
+  
+        if (selectedOption === '닉네임 + 이미지') {
+          const imageResponse = await postImageApi({
+            nickname: response.data.nickname,
+            description: info.description
+          });
+  
+          if (imageResponse.status === 200) {
+            imageUrl = imageResponse.data.image_url;
+            setImageUrl(imageUrl);
+          } else {
+            console.error("Failed with status code:", imageResponse.status);
+            setImageUrl(null);
+          }
         }
-        setIsSelectBtnOpne(false);
+  
+        setNicknameHistory(prev => [...prev, { nickname: response.data.nickname, imageUrl }]);
+      } else {
+        console.error("Failed with status code:", response.status);
+      }
+      setIsSelectBtnOpne(false);
     } catch (error) {
-        console.error("Error Info : ", error);
-        setDisplayResult("Error occurred");
-        setImageUrl(null);
+      console.error("Error Info : ", error);
+      setDisplayResult("Error occurred");
+      setImageUrl(null);
     } finally {
-        setIsLoading(false);
+      setIsLoading(false);
     }
   };
 
 
   /* 새로고침 버튼 */
   const RefreshButtonHandler = async () => {
-    console.log("새로고침 버튼 Click!");
     setIsLoading(true);
     setDisplayResult("닉네임 생성중");
     setImageUrl("이미지 생성중");
     try {
-        const response = await postNicknameApi(info);
-        if (response.status === 200) {
-            setDisplayResult(response.data.nickname);
-
-            if (selectedOption === '닉네임 + 이미지') {
-                const imageResponse = await postImageApi({
-                    nickname: response.data.nickname,
-                    description: info.description
-                });
-
-                if (imageResponse.status === 200) {
-                    setImageUrl(imageResponse.data.image_url);
-                } else {
-                    console.error("Failed with status code:", imageResponse.status);
-                    setImageUrl(null);
-                }
-            }
-        } else {
-            console.error("Failed with status code:", response.status);
+      const response = await postNicknameApi(info);
+      if (response.status === 200) {
+        setDisplayResult(response.data.nickname);
+        let imageUrl = null;
+  
+        if (selectedOption === '닉네임 + 이미지') {
+          const imageResponse = await postImageApi({
+            nickname: response.data.nickname,
+            description: info.description
+          });
+  
+          if (imageResponse.status === 200) {
+            imageUrl = imageResponse.data.image_url;
+            setImageUrl(imageUrl);
+          } else {
+            console.error("Failed with status code:", imageResponse.status);
+            setImageUrl(null);
+          }
         }
+  
+        setNicknameHistory(prev => [...prev, { nickname: response.data.nickname, imageUrl }]);
+      } else {
+        console.error("Failed with status code:", response.status);
+      }
     } catch (error) {
-        console.error("Error Info : ", error);
-        setDisplayResult("Error occurred");
-        setImageUrl(null);
+      console.error("Error Info : ", error);
+      setDisplayResult("Error occurred");
+      setImageUrl(null);
     } finally {
-        setIsLoading(false);
+      setIsLoading(false);
     }
+  };
+
+  const handleNicknameClick = (nickname: string, imageUrl: string | null) => {
+    setDisplayResult(nickname);
+    setImageUrl(imageUrl);
   };
 
   return (
@@ -685,40 +685,67 @@ const InfoInput = () => {
       {displayResult && selectedOption === '닉네임' && (
         <SelectBtnBackground>
             <NicknameDisplay>
+              <NicknameTextContainer>
                 <MessageTopBar/>
-                <NicknameText>{isLoading ? "닉네임 생성중" : displayResult}</NicknameText>
-                {isLoading && <LoadingDots />}
+                <NicknameTextWrapper>
+                  <NicknameText>{isLoading ? "닉네임 생성중" : displayResult}</NicknameText>
+                  {isLoading && <LoadingDots />}
+                </NicknameTextWrapper>
                 <RefreshButton onClick={RefreshButtonHandler}>
                     <img src={refreshImg} />
                 </RefreshButton>
                 <CancelButton onClick={closeHandler}>
                     <img src={cancelBtnImg} />
                 </CancelButton>
+              </NicknameTextContainer>
+              <NicknameListContainer>
+                <h4>닉네임 기록</h4>
+                <NicknameListWrapper>
+                  {nicknameHistory.map((item, index) => (
+                    <NicknameListItem key={index}>{item.nickname}</NicknameListItem>
+                  ))}
+                </NicknameListWrapper>
+              </NicknameListContainer>
             </NicknameDisplay>
         </SelectBtnBackground>
-    )}
-
+      )}
     {displayResult && selectedOption === '닉네임 + 이미지' && (
-        <SelectBtnBackground>
-            <NicknameImageDisplay>
-                <CancelButton onClick={closeHandler}>
-                    <img src={cancelBtnImg} />
-                </CancelButton>
-                <MessageTopBar />
-                <NicknameImageText>{displayResult}</NicknameImageText>
-                {imageUrl === "이미지 생성중" ? (
-                  <>
-                    <NicknameImageText>이미지 생성중</NicknameImageText>
-                    <LoadingDots />
-                  </>
-                ) : (
-                  imageUrl && <img src={imageUrl} alt='닉네임 이미지' />
-                )}
-                <RefreshButton onClick={RefreshButtonHandler}>
-                    <img src={refreshImg} />
-                </RefreshButton>
-            </NicknameImageDisplay>
-        </SelectBtnBackground>
+      <SelectBtnBackground>
+        <NicknameImageDisplay>
+          <NicknameImageTextContainer>
+            <MessageTopBar />
+            <NicknameImageTextWrapper>
+              <NicknameImageText>{isLoading ? "닉네임 생성중" : displayResult}</NicknameImageText>
+              {imageUrl === "이미지 생성중" ? (
+                <>
+                  <NicknameImageText>이미지 생성중</NicknameImageText>
+                  <LoadingDots />
+                </>
+              ) : (
+                <ImageWrapper>
+                  {imageUrl && <img src={imageUrl} alt='닉네임 이미지' />}
+                </ImageWrapper>
+              )}
+            </NicknameImageTextWrapper>
+            <RefreshButton onClick={RefreshButtonHandler}>
+              <img src={refreshImg} />
+            </RefreshButton>
+            <CancelButton onClick={closeHandler}>
+              <img src={cancelBtnImg} />
+            </CancelButton>
+          </NicknameImageTextContainer>
+          <NicknameListContainer>
+            <h4>닉네임 기록</h4>
+            <NicknameListWrapper>
+              {nicknameHistory.map((item, index) => (
+                <NicknameListItem key={index} onClick={() => handleNicknameClick(item.nickname, item.imageUrl)}>
+                  {item.nickname}
+                </NicknameListItem>
+              ))}
+            </NicknameListWrapper>
+          </NicknameListContainer>
+        </NicknameImageDisplay>
+      </SelectBtnBackground>
     )}
     </Background>
   );

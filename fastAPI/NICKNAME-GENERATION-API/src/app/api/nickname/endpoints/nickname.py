@@ -16,7 +16,6 @@ async def health_check():
 #-- 반환 데이터 : nickname(str)
 
 @router.post("/nickname")
-@log_decorator()
 async def generate_nickname(request: NicknameRequest):
     try:
         print("[POST] 닉네임 생성중.....")

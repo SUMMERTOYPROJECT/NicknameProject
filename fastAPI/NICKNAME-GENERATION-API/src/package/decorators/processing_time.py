@@ -31,7 +31,7 @@ def setup_performance_logger(log_directory="logs"):
 
     return logger
 
-def measure_func_execution_time_decorator(log_directory="logs"):
+def execution_time_decorator(log_directory="logs"):
     """
     Description: 함수의 실행 시간을 측정하고 로그 파일에 기록하는 데코레이터입니다.
     Param: log_directory (str) - 로그 파일을 저장할 경로 (기본값: "logs")

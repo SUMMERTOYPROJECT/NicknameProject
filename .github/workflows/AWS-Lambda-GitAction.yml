@@ -32,20 +32,18 @@ jobs:
 
     - name: Build, tag, and push image to Amazon ECR
       env:
-        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        IMAGE_TAG: ${{ github.sha }}
+        ECR_REGISTRY: ${{ secrets.ECR_REGISTRY }}
       run: |
-        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG fastAPI/
-        docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:latest
-        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-        docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
-        echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+        docker build -t $ECR_REGISTRY/${{ env.ECR_REPOSITORY }}:latest fastAPI/
+        docker push $ECR_REGISTRY/${{ env.ECR_REPOSITORY }}:latest
 
     - name: Update Lambda Function
+      env:
+        ECR_REGISTRY: ${{ secrets.ECR_REGISTRY }}
       run: |
         aws lambda update-function-code \
           --function-name ${{ env.LAMBDA_FUNCTION_NAME }} \
-          --image-uri ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest
+          --image-uri $ECR_REGISTRY/${{ env.ECR_REPOSITORY }}:latest
 
     - name: Comment PR
       uses: actions/github-script@v6
@@ -56,5 +54,5 @@ jobs:
             issue_number: context.issue.number,
             owner: context.repo.owner,
             repo: context.repo.repo,
-            body: 'Docker 이미지가 ECR에 푸시되었고 Lambda 함수가 업데이트되었습니다. 이미지 태그: ${{ github.sha }}'
+            body: 'Docker 이미지가 ECR에 푸시되었고 Lambda 함수가 업데이트되었습니다.'
           })

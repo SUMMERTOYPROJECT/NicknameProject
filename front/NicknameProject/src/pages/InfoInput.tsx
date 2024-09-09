@@ -215,7 +215,6 @@ const InfoInput = () => {
             <st.SelectCancelButton onClick={closeHandler}>
               <img src={cancelBtnImg} />
             </st.SelectCancelButton>
-            <st.MessageTopBar/>
             <st.OptionContainer>
               <st.OptionButton
                 onClick={() => showResultHandler('닉네임')}>
